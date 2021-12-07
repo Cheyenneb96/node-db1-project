@@ -1,11 +1,57 @@
+const Account = require('./accounts-model')
+const db =require ('../../data/db-config')
+
 exports.checkAccountPayload = (req, res, next) => {
-  // DO YOUR MAGIC
+  const error = {stsatus: 400}
+  const { name, budget}= req.body
+  if (name ===undefined || budget === undefined){
+    error.message = 'name and budget are requireed'
+    next(error)
+  } else if(typeof name !== "string"){
+    error.message ="name of account must be a string"
+    next(error)
+  }else if (name.trim().length <3 || name.trim().length > 100){
+    error.message = " name of account must be between 3 and 100"
+    next(error)
+  }else if(budget < 0 || budget > 100000){
+    error.message = " budget of account is to large or to small"
+  }
+  if (err.message){
+    next(error)
+  }else{
+    next()
+  }
+ 
 }
 
-exports.checkAccountNameUnique = (req, res, next) => {
-  // DO YOUR MAGIC
+exports.checkAccountNameUnique =async (req, res, next) => {
+try{
+  const existing = await db('accounts')
+  .where('name', req.body.name.trim())
+  .first()
+
+  if(existing){
+    next({ status: 400, message:' that name is taken'})
+  }else{
+    next()
+  }
+
+}catch(err){
+  next(err)
+}
+  
 }
 
-exports.checkAccountId = (req, res, next) => {
-  // DO YOUR MAGIC
+exports.checkAccountId = async(req, res, next) => {
+  try{
+    const account =await Account.getbyId(req.params.id)
+    if(!account){
+      next({status: 404, message: 'not found'})
+    }else{
+      req.account = account
+      next()
+    }
+  } catch (err){
+  next()
+ }
 }

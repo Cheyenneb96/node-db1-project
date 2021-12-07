@@ -1,27 +1,54 @@
 const router = require('express').Router()
+const Account = require('./accounts-model')
+const md = require('./accounts-middleware')
 
-router.get('/', (req, res, next) => {
+router.get('/',  async (req, res, next) => {
   // DO YOUR MAGIC
+  try {
+    const account = await  Account.getAll()
+    res.json(account)
+  } catch (err){
+    next(err)
+  }
 })
 
-router.get('/:id', (req, res, next) => {
-  // DO YOUR MAGIC
+router.get('/:id', md.checkAccountId, async (req, res, next) => {
+res.json(req.account)
 })
 
-router.post('/', (req, res, next) => {
-  // DO YOUR MAGIC
+router.post('/', md.checkAccountPayload,md.checkAccountNameUnique, (req, res, next) => {
+  
+  try{
+    res.json(' post account')
+  } catch (err){
+    next(err)
+  }
 })
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id',md.checkAccountId,md.checkAccountPayload, 
+md.checkAccountNameUnique, (req, res, next) => {
   // DO YOUR MAGIC
+  try{
+    res.json(' update account')
+  } catch (err){
+    next(err)
+  }
 });
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id',md.checkAccountId, (req, res, next) => {
   // DO YOUR MAGIC
+  try{
+    res.json(' delete account')
+  } catch (err){
+    next(err)
+  }
 })
 
 router.use((err, req, res, next) => { // eslint-disable-line
-  // DO YOUR MAGIC
+ res.status(err.status || 500).json({
+   message: err.message
+ })
+  
 })
 
 module.exports = router;
